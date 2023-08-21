@@ -1,0 +1,7 @@
+C:\Users\Alexandria\Desktop\Current Task\devPD [FivePD Dev Files]\Github - Rapid Response Callout Pack\Callout-Repo-Template\Repo Template.net\Repo Template\obj\Debug\Repo Template.csproj.AssemblyReference.cache
+C:\Users\Alexandria\Desktop\Current Task\devPD [FivePD Dev Files]\Github - Rapid Response Callout Pack\Callout-Repo-Template\Repo Template.net\Repo Template\obj\Debug\Repo Template.csproj.CoreCompileInputs.cache
+C:\Users\Alexandria\Desktop\Current Task\devPD [FivePD Dev Files]\Github - Rapid Response Callout Pack\Callout-Repo-Template\Repo Template.net\Repo Template\obj\Debug\Repo Template.csproj.CopyComplete
+C:\Users\Alexandria\Desktop\Current Task\devPD [FivePD Dev Files]\Github - Rapid Response Callout Pack\Callout-Repo-Template\Repo Template.net\Repo Template\obj\Debug\Repo_Template.net.dll
+C:\Users\Alexandria\Desktop\Current Task\devPD [FivePD Dev Files]\Github - Rapid Response Callout Pack\Callout-Repo-Template\Repo Template.net\Repo Template\obj\Debug\Repo_Template.net.pdb
+C:\Users\Alexandria\Desktop\Current Task\devPD [FivePD Dev Files]\Github - Rapid Response Callout Pack\Callout-Repo-Template\Repo Template.net\Repo_Template.net.dll
+C:\Users\Alexandria\Desktop\Current Task\devPD [FivePD Dev Files]\Github - Rapid Response Callout Pack\Callout-Repo-Template\Repo Template.net\Repo_Template.net.pdb
