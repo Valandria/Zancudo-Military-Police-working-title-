@@ -40,6 +40,9 @@
     <Reference Include="FivePD.net">
       <HintPath>..\..\FRRP VRRC Variant\FRRP-VRRC-Variant\VRRC.net\bin\Debug\FivePD.net.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -52,7 +55,6 @@
   <ItemGroup>
     <Compile Include="MPMed_VehicleCollision.cs" />
     <Compile Include="MPTow_AbandonedVehicle.cs" />
-    <Compile Include="MP_ActiveShooter.cs" />
     <Compile Include="MP_DeadBody.cs" />
     <Compile Include="MP_DrunkServicemen.cs" />
     <Compile Include="MP_Fight.cs" />
@@ -62,6 +64,9 @@
     <Compile Include="MP_SuspiciousBoat.cs" />
     <Compile Include="MP_VanPursuit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,79 +1,128 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
 using FivePD.API;
 using FivePD.API.Utils;
 using CitizenFX.Core.Native;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 namespace ZancudoMilitaryPolice
 {
-    [CalloutProperties("Military Police Rogue Soldier", "Valandria", "0.0.2")]
+    [CalloutProperties("Military Police Rogue Soldier", "Valandria", "0.0.1")]
     public class RogueSoldier : Callout
     {
-        Ped MPRSPed;
-        private Vector3[] coordinates = {
-            new Vector3(-2156.1f, 3240.397f, 32.81042f),
-            new Vector3(-1963.363f, 3135.539f, 32.81038f),
-            new Vector3(-1952.621f, 2986.537f, 32.81018f),
-            new Vector3(-1809.317f, 2878.269f, 32.80949f),
-            new Vector3(-1736.669f, 2898.073f, 32.8085f),
-            new Vector3(-1825.416f, 2943.042f, 33.15864f),
-            new Vector3(-2395.029f, 2989.533f, 32.86604f),
-            new Vector3(-2449.016f, 2963.492f, 32.8145f),
-            new Vector3(-2482.605f, 2934.713f, 32.81105f),
-        };
+        public JObject GetJsonData()
+        {
+            string mprspath = "/callouts/VRRC/VRRCConfig.json";
+            string mprsdata = API.LoadResourceFile(API.GetCurrentResourceName(), mprspath);
+            JObject mprsjsonData = JObject.Parse(mprsdata);
+
+            foreach (var mprsDepartment in mprsjsonData["StolenMilitaryVehicle-Department"])
+            {
+                int.TryParse((string)mprsDepartment[0], out int mprsdeptID);
+                _assignedDeptarments.Add(mprsdeptID);
+            }
+
+            List<Vector3> mprscoords = new List<Vector3>();
+            foreach (var mprscoordinate in mprsjsonData["RogueSoldier-Coordinates"])
+            {
+                mprscoords.Add(JsonConvert.DeserializeObject<Vector3>(mprscoordinate.ToString()));
+            }
+            _mprscoordinates = mprscoords.SelectRandom();
+
+            Dictionary<string, PedHash> mprsRogueSoliderHashes = new Dictionary<string, PedHash>();
+            string[] mprsRogueSoliderJSON = JsonConvert.DeserializeObject<string[]>(mprsjsonData["RogueSoldier-RogueSoldier"].ToString());
+            foreach (string mprsRogueSoliderhash in mprsRogueSoliderJSON)
+            {
+                int mprsRogueSoliderhashKey = API.GetHashKey(mprsRogueSoliderhash);
+
+                mprsRogueSoliderHashes.Add(mprsRogueSoliderhash, (PedHash)mprsRogueSoliderhashKey);
+            }
+            _mprsRogueSoliderHash = mprsRogueSoliderHashes.SelectRandom().Value;
+
+            Dictionary<string, WeaponHash> mprsweaponHashes = new Dictionary<string, WeaponHash>();
+            string[] mprsweaponJSON = JsonConvert.DeserializeObject<string[]>(mprsjsonData["RogueSoldier-Weapons"].ToString());
+            foreach (string mprsweaponhash in mprsweaponJSON)
+            {
+                int mprsweaponhashKey = API.GetHashKey(mprsweaponhash);
+
+                mprsweaponHashes.Add(mprsweaponhash, (WeaponHash)mprsweaponhashKey);
+            }
+            _mprsweaponHash = mprsweaponHashes.SelectRandom().Value;
+
+            //foreach (var mprsquestionJSON in mprsjsonData["RogueSoldier-Dialogue"])
+            //{
+            //    string question = mprsquestionJSON["Question"].ToString();
+            //    string[] answers = JsonConvert.DeserializeObject<string[]>(mprsquestionJSON["Answers"].ToString());
+
+            //    PedQuestion mprspq = new PedQuestion();
+            //    mprspq.Question = question;
+            //    mprspq.Answers = answers.ToList();
+
+            //    _mprspedQuestions.Add(mprspq);
+            //}
+
+            return mprsjsonData;
+        }
+
+        public override async Task<bool> CheckRequirements()
+        {
+            var mprsplayerDept = Utilities.GetPlayerData().DepartmentID;
+            if (_assignedDeptarments.Contains(mprsplayerDept))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private List<int> _assignedDeptarments = new List<int>();
+        private Vector3 _mprscoordinates;
+        private PedHash _mprsRogueSoliderHash;
+        private WeaponHash _mprsweaponHash;
+
+        //private PedData _mprsRogueSoldierData;
+
+        //private List<PedQuestion> _mprspedQuestions = new List<PedQuestion>();
+
+        Ped MPRSRogueSoldier;
 
         public RogueSoldier()
         {
-            InitInfo(coordinates[RandomUtils.Random.Next(coordinates.Length + 30)]);
-            ShortName = "MP - Rogue Military Soldier";
-            CalloutDescription = "A soldier has reportedly gone AWOL near the armory, neutralize target and minimize casulties.";
+            _ = GetJsonData();
+            InitInfo(_mprscoordinates.Around(100f));
+            ShortName = "MP - Reports of Armory Theft";
+            CalloutDescription = "Armory Post reports a break in and the suspect was spotted, secure the area.";
             ResponseCode = 3;
-            StartDistance = 100f;
+            StartDistance = 1000f;
         }
 
         public override async Task OnAccept()
         {
-            var suspects = new[]
-          {
-               PedHash.MilitaryBum,
-               PedHash.Armymech01SMY,
-               PedHash.ExArmy01,
-               PedHash.Armoured01,
-               PedHash.Pilot01SMM,
-               PedHash.Pilot01SMY,
-               PedHash.Pilot02SMM
-           };
-
-            var guns = new[]
-          {
-               WeaponHash.RPG,
-               WeaponHash.HeavySniperMk2,
-               WeaponHash.HomingLauncher,
-               WeaponHash.Minigun,
-               WeaponHash.Railgun,
-           };
-
-            base.InitBlip(25);
-            MPRSPed = await SpawnPed(suspects[RandomUtils.Random.Next(suspects.Length)], Location + 20);
-            MPRSPed.Weapons.Give(guns[RandomUtils.Random.Next(guns.Length)], 9999, true, true);
+            InitBlip(50);
         }
 
-        public override void OnStart(Ped player)
+        public async override void OnStart(Ped player)
         {
-            base.OnStart(player);
-            MPRSPed.Accuracy = 80;
-            MPRSPed.FiringPattern = FiringPattern.FullAuto;
-            MPRSPed.ShootRate = 1000;
-            MPRSPed.RelationshipGroup = 0xCE133D78;
-            MPRSPed.Task.FightAgainstHatedTargets(this.StartDistance);
-            MPRSPed.ArmorFloat = 1000;
-            MPRSPed.Armor = 1000;
-            ShowNetworkedNotification("The suspect should be considered armed and dangerous with heavy weaponry.", "CHAR_CALL911", "CHAR_CALL911", "Dispatch", "", 15f);
-            ShowNetworkedNotification("Clear the area before making contact.", "CHAR_CALL911", "CHAR_CALL911", "Dispatch", "", 15f);
+            OnStart(player);
+
+            MPRSRogueSoldier = await SpawnPed(_mprsRogueSoliderHash, _mprscoordinates.Around(30f));
+            MPRSRogueSoldier.IsPersistent = true;
+            MPRSRogueSoldier.AlwaysKeepTask = true;
+
+            MPRSRogueSoldier.Weapons.Give(_mprsweaponHash, 9999, true, true);
+            MPRSRogueSoldier.Accuracy = 80;
+            MPRSRogueSoldier.FiringPattern = FiringPattern.FullAuto;
+            MPRSRogueSoldier.ShootRate = 1000;
+            MPRSRogueSoldier.RelationshipGroup = 0xCE133D78;
+            MPRSRogueSoldier.Task.FightAgainstHatedTargets(StartDistance);
+            MPRSRogueSoldier.ArmorFloat = 10000;
+            MPRSRogueSoldier.Armor = 10000;
         }
     }
 }

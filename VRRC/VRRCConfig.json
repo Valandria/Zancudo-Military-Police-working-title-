@@ -1,0 +1,175 @@
+{
+  "ZMP-Vehicles": 
+  [
+    "Barracks1",
+    "Barracks2",
+    "Barracks3",
+    "Crusader"
+  ],
+
+  "DrinkingonBase-Department":
+  [
+    "8"
+  ],
+
+  "DrinkingonBase-Coordinates":
+  [
+    {
+
+    }
+  ],
+
+  "DrinkingonBase-Primary":
+  [
+    "mp_m_exarmy_01",
+    "s_m_y_armymech_01",
+    "s_m_y_blackops_01",
+    "s_m_y_blackops_02",
+    "s_m_y_blackops_03",
+    "s_m_m_pilot_02",
+    "s_m_y_pilot_01",
+    "u_m_y_militarybum",
+    "u_m_y_juggernaut_01",
+    "s_m_m_marine_01",
+    "s_m_m_marine_02",
+    "csb_ramp_marine",
+    "csb_mweather"
+  ],
+
+  "DrinkingonBase-Secondary":
+  [
+    "mp_m_exarmy_01",
+    "s_m_y_armymech_01",
+    "s_m_y_blackops_01",
+    "s_m_y_blackops_02",
+    "s_m_y_blackops_03",
+    "s_m_m_pilot_02",
+    "s_m_y_pilot_01",
+    "u_m_y_militarybum",
+    "u_m_y_juggernaut_01",
+    "s_m_m_marine_01",
+    "s_m_m_marine_02",
+    "csb_ramp_marine",
+    "csb_mweather"
+  ],
+
+  "RogueSoldier-Department": 
+  [
+    "8"
+  ],
+
+  "RogueSoldier-Coordinates": 
+  [
+    {
+      "X": -2156.1,
+      "Y": 3240.397,
+      "Z": 32.81042,
+      "IsNormalized": false,
+      "IsZero": false
+    },
+    {
+       "X": -1963.363,
+       "Y": 3135.539,
+       "Z": 32.81038,
+       "IsNormalized":false,
+       "IsZero": false
+    },
+    {
+        "X": -1952.621,
+        "Y": 2986.537,
+        "Z": 32.81018,
+        "IsNormalized": false,
+        "IsZero": false
+    },
+    {
+        "X": -1809.317,
+        "Y": 2878.269,
+        "Z": 32.80949,
+        "IsNormalized": false,
+        "IsZero": false
+    },
+    {
+        "X": -1736.669,
+        "Y": 2898.073,
+        "Z": 32.8085,
+        "IsNormalized": false,
+        "IsZero": false
+    },
+    {
+        "X": -1825.416,
+        "Y": 2943.042,
+        "Z": 33.15864,
+        "IsNormalized": false,
+        "IsZero": false
+    },
+    {
+        "X": -2395.029,
+        "Y": 2989.533,
+        "Z": 32.86604,
+        "IsNormalized": false,
+        "IsZero": false
+    },
+    {
+        "X": -2449.016,
+        "Y": 2963.492,
+        "Z": 32.8145,
+        "IsNormalized": false,
+        "IsZero": false
+    },
+    {
+        "X": -2482.605,
+        "Y": 2934.713,
+        "Z": 32.81105,
+        "IsNormalized": false,
+        "IsZero": false
+    }
+  ],
+  "RogueSoldier-RogueSoldier": 
+  [
+    "mp_m_exarmy_01",
+    "s_m_y_armymech_01",
+    "s_m_y_blackops_01",
+    "s_m_y_blackops_02",
+    "s_m_y_blackops_03",
+    "s_m_m_pilot_02",
+    "s_m_y_pilot_01",
+    "u_m_y_militarybum",
+    "u_m_y_juggernaut_01",
+    "s_m_m_marine_01",
+    "s_m_m_marine_02",
+    "csb_ramp_marine",
+    "csb_mweather"
+  ],
+  "RogueSoldier-Weapons": 
+  [
+    "RPG",
+    "HeavySniperMk2",
+    "Minigun",
+    "Railgun",
+    "MarksmanRifleMk2",
+    "CombatMGMk2",
+    "AssaultrifleMk2"
+  ],
+  "StolenMilitaryVehicle-Coordinates": 
+  [
+    {
+
+    }
+  ],
+  "StolenMilitaryVehicle-Driver": 
+  [
+    "mp_m_exarmy_01",
+    "s_m_y_armymech_01",
+    "s_m_y_blackops_01",
+    "s_m_y_blackops_02",
+    "s_m_y_blackops_03",
+    "s_m_m_pilot_02",
+    "s_m_y_pilot_01",
+    "u_m_y_militarybum",
+    "u_m_y_juggernaut_01",
+    "s_m_m_marine_01",
+    "s_m_m_marine_02",
+    "csb_ramp_marine",
+    "csb_mweather"
+  ]
+}

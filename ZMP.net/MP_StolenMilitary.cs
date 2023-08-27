@@ -5,25 +5,81 @@ using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using FivePD.API;
 using FivePD.API.Utils;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ZancudoMilitaryPolice
 {
-    
     [CalloutProperties("Military Police Stolen Military Vehicle Callout", "Valandria", "0.0.1")]
-    public class StolenMilitary : Callout
+    public class StolenMilitaryVehicle : Callout
     {
-        private Vehicle car;
-        Ped driver;
-        private string[] goodItemList = { "Open Soda Can", "Pack of Hotdogs", "Dog Food", "Empty Can", "Phone", "Cake", "Cup of Noodles", "Water Bottle", "Pack of Cards", "Outdated Insurance Card", "Pack of Pens", "Phone", "Tablet", "Computer", "Business Cards", "Taxi Business Card", "Textbooks", "Car Keys", "House Keys", "Keys", "Folder"};
-        private string[] carList = { "barracks1", "barracks2", "barracks3", "crusader"};
-        private Vector3[] coordinates =
+        public JObject GetJsonData()
         {
-            new Vector3(),
-        };
-        public StolenMilitary()
+            string mpsmvpath = "/callouts/VRRC/VRRCConfig.json";
+            string mpsmvdata = API.LoadResourceFile(API.GetCurrentResourceName(), mpsmvpath);
+            JObject mpsmvjsonData = JObject.Parse(mpsmvdata);
+
+            foreach (var mpsmvDepartment in mpsmvjsonData["StolenMilitaryVehicle-Department"])
+            {             
+                int.TryParse((string)mpsmvDepartment[0], out int mpsmvdeptID);
+                _assignedDeptarments.Add(mpsmvdeptID);
+            }
+
+            List<Vector3> mpsmvcoords = new List<Vector3>();
+            foreach (var mpsmvcoordinate in mpsmvjsonData["StolenMilitaryVehicle-Coordinates"])
+            {
+                mpsmvcoords.Add(JsonConvert.DeserializeObject<Vector3>(mpsmvcoordinate.ToString()));
+            }
+            _mpsmvcoordinates = mpsmvcoords.SelectRandom();
+
+            Dictionary<string, PedHash> mpsmvDriverHashes = new Dictionary<string, PedHash>();
+            string[] mpsmvDriverJSON = JsonConvert.DeserializeObject<string[]>(mpsmvjsonData["StolenMilitaryVehicle-Driver"].ToString());
+            foreach (string mpsmvDriverhash in mpsmvDriverJSON)
+            {
+                int mpsmvDriverhashKey = API.GetHashKey(mpsmvDriverhash);
+                mpsmvDriverHashes.Add(mpsmvDriverhash, (PedHash)mpsmvDriverhashKey);
+            }
+            _mpsmvDriverHash = mpsmvDriverHashes.SelectRandom().Value;
+
+            //----VEHICLE DATA----
+            Dictionary<string, VehicleHash> mpsmvvehicleHashes = new Dictionary<string, VehicleHash>();
+            string[] mpsmvvehicleJSON = JsonConvert.DeserializeObject<string[]>(mpsmvjsonData["ZMP-Vehicles"].ToString());
+            foreach (string mpsmvhash in mpsmvvehicleJSON)
+            {
+                int hashKey = API.GetHashKey(mpsmvhash);
+                mpsmvvehicleHashes.Add(mpsmvhash, (VehicleHash)hashKey);
+            }
+            _mpsmvvehicleHash = mpsmvvehicleHashes.SelectRandom().Value;
+
+            return mpsmvjsonData;
+        }
+
+        public override async Task<bool> CheckRequirements()
         {
-            InitInfo(coordinates[RandomUtils.Random.Next(coordinates.Length + 30)]);
+            var mpsmvplayerDept = Utilities.GetPlayerData().DepartmentID;
+            if (_assignedDeptarments.Contains(mpsmvplayerDept))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private List<int> _assignedDeptarments = new List<int>();
+        private Vector3 _mpsmvcoordinates;
+        private PedHash _mpsmvDriverHash;
+        private VehicleHash _mpsmvvehicleHash;
+
+        private Vehicle _mpsmvVehicle;
+
+        Ped _mpsmvDriver;
+
+        public StolenMilitaryVehicle()
+        {
+            _ = GetJsonData();
+            InitInfo(World.GetNextPositionOnStreet(_mpsmvcoordinates));
             ShortName = "MP - Stolen Military Vehicle";
             CalloutDescription = "Someone stole a vehicle from the motor pool!";
             ResponseCode = 3;
@@ -33,50 +89,28 @@ namespace ZancudoMilitaryPolice
         public async override void OnStart(Ped player)
         {
             base.OnStart(player);
-            driver = await SpawnPed(RandomUtils.GetRandomPed(), Location + 2);
-            Random randomfd = new Random();
-            string cartype = carList[randomfd.Next(carList.Length)];
-            VehicleHash Hash = (VehicleHash)API.GetHashKey(cartype);
-            car = await SpawnVehicle(Hash, Location);
-            driver.SetIntoVehicle(car, VehicleSeat.Driver);
-            PedData data = new PedData();
-            Random random3 = new Random();
-            string name2 = goodItemList[random3.Next(goodItemList.Length)];
-            List<Item> items = new List<Item>();
-            Item goodItem = new Item {
-                Name = name2,
-                IsIllegal = false
-            };
-            items.Add(goodItem);
-            data.Items = items;
-            Utilities.SetPedData(driver.NetworkId,data);
-            //Car Data
-            VehicleData vehicleData = await Utilities.GetVehicleData(car.NetworkId);
-            Utilities.SetVehicleData(car.NetworkId,vehicleData);
-            Utilities.ExcludeVehicleFromTrafficStop(car.NetworkId,true);
-            driver.AlwaysKeepTask = true;
-            driver.BlockPermanentEvents = true;
-            
-            API.SetDriveTaskMaxCruiseSpeed(driver.GetHashCode(), 30f);
-            API.SetDriveTaskDrivingStyle(driver.GetHashCode(), 524852);
-            driver.Task.FleeFrom(player);
-            car.AttachBlip();
-            driver.AttachBlip();
-            PlayerData playerData = Utilities.GetPlayerData();
-            string displayName = playerData.DisplayName;
-            Notify("~y~Officer ~b~" + displayName + ",~y~ the suspect is fleeing!");
-            Pursuit.RegisterPursuit(driver);
+            _mpsmvDriver = await SpawnPed(_mpsmvDriverHash, Location + 2);
+            _mpsmvVehicle = await SpawnVehicle(_mpsmvvehicleHash, Location);
+            _mpsmvDriver.SetIntoVehicle(_mpsmvVehicle, VehicleSeat.Driver);
+
+            VehicleData mpsmvVehicleData = await Utilities.GetVehicleData(_mpsmvVehicle.NetworkId);
+            Utilities.SetVehicleData(_mpsmvVehicle.NetworkId, mpsmvVehicleData);
+            Utilities.ExcludeVehicleFromTrafficStop(_mpsmvVehicle.NetworkId,true);
+            _mpsmvDriver.AlwaysKeepTask = true;
+            _mpsmvDriver.IsPersistent = true;
+            _mpsmvDriver.BlockPermanentEvents = true;
+            _mpsmvVehicle.IsPersistent = true;
+
+            _mpsmvDriver.DrivingStyle = DrivingStyle.AvoidTrafficExtremely;
+            _mpsmvDriver.DrivingSpeed = 200;
+            _mpsmvDriver.Task.FleeFrom(player);
+            _mpsmvVehicle.AttachBlip();
+            Pursuit.RegisterPursuit(_mpsmvDriver);
         }
         public async override Task OnAccept()
         {
             InitBlip();
             UpdateData();
-        }
-        private void Notify(string message)
-        {
-            API.BeginTextCommandThefeedPost("STRING");
-            API.AddTextComponentSubstringPlayerName(message);
-            API.EndTextCommandThefeedPostTicker(false, true);
         }
     }
 }
